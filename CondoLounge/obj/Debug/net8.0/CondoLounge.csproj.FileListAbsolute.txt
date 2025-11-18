@@ -213,3 +213,4 @@ C:\Users\2276038\Source\Repos\test-1-condolounge-bogdanSgithub\CondoLounge\bin\D
 C:\Users\2276038\Source\Repos\test-1-condolounge-bogdanSgithub\CondoLounge\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\2276038\Source\Repos\test-1-condolounge-bogdanSgithub\CondoLounge\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\Users\2276038\Source\Repos\test-1-condolounge-bogdanSgithub\CondoLounge\obj\Debug\net8.0\CondoLounge.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\2276038\Source\Repos\test-1-condolounge-bogdanSgithub\CondoLounge\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
