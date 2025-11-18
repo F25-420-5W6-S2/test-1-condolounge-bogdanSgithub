@@ -80,10 +80,6 @@ namespace CondoLounge.Areas.Identity.Pages.Account
             [Display(Name = "Email")]
             public string Email { get; set; }
 
-            [Required]            
-            [Display(Name = "Job Title")]
-            public string JobTitle { get; set; }
-
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -118,7 +114,6 @@ namespace CondoLounge.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-                //user.JobTitle = Input.JobTitle;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -127,7 +122,6 @@ namespace CondoLounge.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-                    await _userManager.AddToRoleAsync(user, "Normal");
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

@@ -25,6 +25,9 @@ builder.Services.AddScoped<IRepositoryProvider, RepositoryProvider>();
 
 var app = builder.Build();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 await RunSeeding(app);
 
 async Task RunSeeding(WebApplication app)
@@ -57,5 +60,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapRazorPages();
 
 app.Run();
