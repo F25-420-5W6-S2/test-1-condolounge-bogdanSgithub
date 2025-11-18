@@ -1,5 +1,6 @@
 using CondoLounge.Data;
 using CondoLounge.Data.Entities;
+using CondoLounge.Data.Repositories.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options => opti
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultUI()
     .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IRepositoryProvider, RepositoryProvider>();
 
 var app = builder.Build();
 
