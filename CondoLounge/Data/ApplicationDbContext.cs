@@ -11,10 +11,23 @@ namespace CondoLounge.Data
             : base(options)
         {
         }
-        
+
+        public DbSet<Condo> Condos { get; set; }
+        public DbSet<Building> Buildings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Building>()
+            .HasMany(b => b.Condos)
+            .WithOne(c => c.Building)
+            .HasForeignKey(c => c.BuildingId);
+
+            modelBuilder.Entity<Condo>()
+            .HasMany(c => c.Users)
+            .WithOne(u => u.Condo)
+            .HasForeignKey(u => u.CondoId);
         }
     }
 }
