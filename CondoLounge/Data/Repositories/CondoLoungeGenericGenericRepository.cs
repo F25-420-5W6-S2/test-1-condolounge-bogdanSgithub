@@ -16,9 +16,17 @@ namespace CondoLounge.Data.Repositories
             _context = db;
             _dbSet = _context.Set<T>();
         }
-        public void Add(T entity)
+        public void Add(T item)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation("Add was called...");
+                _dbSet.Add(item);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to add item: {ex}");
+            }
         }
 
         public void Delete(T entity)
@@ -43,7 +51,22 @@ namespace CondoLounge.Data.Repositories
 
         public T GetById(object id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation("GetById was called...");
+                T item = _dbSet.Find(id);
+                if (item == null)
+                {
+                    _logger.LogWarning($"Item with id {id} could not be found");
+                    return null;
+                }
+                return item;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to get item by id {id}: {ex}");
+                return null;
+            }
         }
 
         public void SaveAll()

@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using CondoLounge.Data;
+using CondoLounge.Data.Interfaces;
 
 namespace CondoLounge.Areas.Identity.Pages.Account
 {
@@ -30,13 +32,15 @@ namespace CondoLounge.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        public IUnitOfWork _unitOfWork;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -44,6 +48,7 @@ namespace CondoLounge.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -71,6 +76,14 @@ namespace CondoLounge.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
+            [Required]
+            [Display(Name = "BuildingNumber")]
+            public int BuildingNumber { get; set; }
+
+            [Required]
+            [Display(Name = "CondoNumber")]
+            public int CondoNumber { get; set; }
+
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -88,6 +101,8 @@ namespace CondoLounge.Areas.Identity.Pages.Account
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
+
+
             public string Password { get; set; }
 
             /// <summary>
@@ -112,8 +127,27 @@ namespace CondoLounge.Areas.Identity.Pages.Account
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
-            {
+            {   
+                // problematic since we need the building created before creating the user but im not doing that...
+
+                var buildingRepo = (IBuildingRepository)this._unitOfWork.GetRepository<ICondoLoungeGenericRepository<Building>>();
+                var existingBuidling = buildingRepo.GetById(Input.BuildingNumber);
+
+                // if building doesnt exist with that id then lets create it
+                if (existingBuidling == null) {
+                    buildingRepo.Add(new Building() { Id = Input.BuildingNumber });
+                }
+
+                var condoRepo = (ICondoRepository)this._unitOfWork.GetRepository<ICondoLoungeGenericRepository<Condo>>();
+                var existingCondo = condoRepo.GetAll().Where(c => c.CondoNumber == Input.CondoNumber);
+
+                // if condo doesnt exist with that condo number then lets create it
+                if (existingCondo.Count() == 0) {
+                    condoRepo.Add(new Condo() { CondoNumber = Input.CondoNumber, Location = "Montreal", BuildingId = Input.BuildingNumber });
+                }
+
                 var user = CreateUser();
+                user.CondoId = Input.CondoNumber;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -159,6 +193,7 @@ namespace CondoLounge.Areas.Identity.Pages.Account
         {
             try
             {
+                Activator.CreateInstance<Condo>();
                 return Activator.CreateInstance<ApplicationUser>();
             }
             catch
@@ -167,6 +202,7 @@ namespace CondoLounge.Areas.Identity.Pages.Account
                     $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
+
         }
 
         private IUserEmailStore<ApplicationUser> GetEmailStore()
